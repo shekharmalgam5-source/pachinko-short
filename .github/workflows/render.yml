@@ -1,0 +1,33 @@
+name: Render Pachinko Short
+
+on:
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get project
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check project
+        run: npm run gates
+
+      - name: Render video
+        run: npm run preview:full
+
+      - name: Save video
+        uses: actions/upload-artifact@v4
+        with:
+          name: pachinko-short
+          path: out/preview_full.mp4
+          if-no-files-found: error
