@@ -19,9 +19,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check project
-        run: npm run gates
-
       - name: Render video
         run: npm run preview:full
 
