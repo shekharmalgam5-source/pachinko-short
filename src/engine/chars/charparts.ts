@@ -25,7 +25,7 @@ const INK_DX = 0.005, INK_DY = 0.007;   // SHAPE: brush weight - ink is heavier 
 const LIMB = '#3a2a2c';                 // stick limbs (reference: dark sticks + ball hands)
 const LIMB_INK = 0.0105;                // limb/hand/foot outline (was 9 mm)
 
-export type Who = 'goldman' | 'woman' | 'man' | 'grandma' | 'youngman' | 'youngwoman' | 'shopper' | 'shopper2' | 'kid' | 'magee' | 'preacher' | 'rancher' | 'cop' | 'banker' | 'oldman' | 'mechanic' | 'baker' | 'hero' | 'salaryman';
+export type Who = 'goldman' | 'woman' | 'man' | 'grandma' | 'youngman' | 'youngwoman' | 'shopper' | 'shopper2' | 'kid' | 'magee' | 'preacher' | 'rancher' | 'cop' | 'banker' | 'oldman' | 'mechanic' | 'baker' | 'hero' | 'salaryman' | 'kidhero' | 'clerk';
 export type View = 'front' | 'side' | 'back';
 type HairStyle = 'part' | 'bob' | 'bun' | 'slick' | 'kid' | 'wave';
 type HatKind = 'fedora' | 'cloche' | 'cap' | 'boater';
@@ -56,6 +56,8 @@ export const LOOKS: Record<Who, Look> = {
   baker: {skin: '#fbeadb', hair: '#8a5a32', hairStyle: 'wave', outfit: 'dress', main: '#e59aa8', second: '#f4ead6', accent: '#f4ead6', dots: '#fbe3e8', apron: true, shoe: '#7a3b22'},
   hero: {skin: '#f0d2b6', hair: '#2a1f1a', hairStyle: 'slick', hat: 'cap', hatCol: '#2f6f73', outfit: 'vest', main: '#d0532f', second: '#f4ead6', accent: '#2f6f73', pants: '#384a6b', shoe: '#3a2620'},
   salaryman: {skin: '#f2d6bd', hair: '#1e1612', hairStyle: 'part', outfit: 'suit', main: '#3a3f4c', second: '#f8f4ea', accent: '#b2391f', pants: '#2e3240', shoe: '#16161c'},
+  kidhero: {skin: '#f2d9c0', hair: '#2a1f1a', hairStyle: 'kid', hat: 'cap', hatCol: '#2f6f73', outfit: 'kid', main: '#d0532f', second: '#384a6b', accent: '#2f6f73', scale: 0.64, headK: 1.12, shoe: '#3a2620'},
+  clerk: {skin: '#f6e2cf', hair: '#1e1612', hairStyle: 'bun', outfit: 'suit', main: '#3a3f4c', second: '#f8f4ea', accent: '#b2391f', pants: '#2e3240', glasses: true, scale: 0.97, shoe: '#16161c'},
 };
 
 // ---------- SHAPE language per character (see review_shape/SHAPE_GUIDE.md) ----------
@@ -83,6 +85,8 @@ export const SHAPES: Record<Who, Shape> = {   // FACES: all heads are balls now 
   baker:      {w: 1.0, h: 0.99, jaw: -0.04, sq: 2.0, sk: -0.02, lean: 0.01, tilt: 0.0},
   hero:       {w: 1.0, h: 1.0, jaw: -0.03, sq: 2.2, sk: 0.03, lean: -0.015, tilt: -0.12},
   salaryman:  {w: 1.0, h: 0.98, jaw: 0.04, sq: 2.25, sk: 0.0, lean: 0.0, tilt: 0.0},
+  kidhero:    {w: 1.02, h: 0.97, jaw: 0.02, sq: 2.0, sk: 0.03, lean: 0.0, tilt: -0.16},
+  clerk:      {w: 1.0, h: 0.99, jaw: -0.02, sq: 2.05, sk: 0.0, lean: 0.01, tilt: 0.03},
 };
 type Pt = [number, number];
 /** filled brush stroke along a quadratic curve p0-c-p1 with width w0 -> wm (middle) -> w1 (pointed or blunt ends) */
@@ -615,7 +619,7 @@ export function hatTex(who: Who, view: View): PartTex | null {
 
 // ---------- face layers (shared by everybody; anchor = their own centre) ----------
 export type Expr = 'neutral' | 'happy' | 'fake' | 'sad' | 'smirk' | 'worried' | 'surprised' | 'closed' | 'wink' | 'angry' | 'smug' | 'tired' | 'proud'
-  | 'rage' | 'grin' | 'shock';   // FACES: peak-only expressions (teeth grid / big open mouth) - the defaults are small asymmetric mouths
+  | 'rage' | 'grin' | 'shock' | 'joy' | 'awe' | 'teary' | 'hopeful';   // FACES: peak-only expressions (teeth grid / big open mouth) - the defaults are small asymmetric mouths
 type EyeK = 'dot' | 'happy' | 'wide' | 'half' | 'closed' | 'wink' | 'tired' | 'blink' | 'lid';
 type BrowK = 'flat' | 'up' | 'high' | 'worried' | 'angry' | 'smirk';
 export type MouthK = 'line' | 'smile' | 'grin' | 'teeth' | 'frown' | 'smirk' | 'o' | 'wavy' | 'pant' | 'grit';
@@ -626,6 +630,7 @@ export const EXPR: Record<Expr, {e: EyeK; b: BrowK; m: MouthK}> = {
   surprised: {e: 'wide', b: 'high', m: 'o'}, closed: {e: 'closed', b: 'flat', m: 'smile'}, wink: {e: 'wink', b: 'smirk', m: 'smirk'},
   angry: {e: 'lid', b: 'angry', m: 'frown'}, smug: {e: 'half', b: 'smirk', m: 'smile'}, tired: {e: 'tired', b: 'worried', m: 'pant'}, proud: {e: 'lid', b: 'up', m: 'smirk'},
   rage: {e: 'dot', b: 'angry', m: 'grit'}, grin: {e: 'wide', b: 'up', m: 'grin'}, shock: {e: 'wide', b: 'high', m: 'teeth'},
+  joy: {e: 'happy', b: 'up', m: 'grin'}, awe: {e: 'wide', b: 'high', m: 'o'}, teary: {e: 'dot', b: 'worried', m: 'frown'}, hopeful: {e: 'wide', b: 'worried', m: 'smile'},
 };
 export type Vis = 'M' | 'A' | 'E' | 'O';
 const EX = 0.075;   // eye half spacing

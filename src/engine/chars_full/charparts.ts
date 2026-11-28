@@ -25,7 +25,7 @@ const INK_DX = 0.005, INK_DY = 0.007;   // SHAPE: brush weight - ink is heavier 
 const LIMB = '#3a2a2c';                 // stick limbs (reference: dark sticks + ball hands)
 const LIMB_INK = 0.0105;                // limb/hand/foot outline (was 9 mm)
 
-export type Who = 'goldman' | 'woman' | 'man' | 'grandma' | 'youngman' | 'youngwoman' | 'shopper' | 'shopper2' | 'kid' | 'magee' | 'preacher' | 'rancher' | 'cop' | 'banker' | 'oldman' | 'mechanic' | 'baker' | 'hero' | 'salaryman';
+export type Who = 'goldman' | 'woman' | 'man' | 'grandma' | 'youngman' | 'youngwoman' | 'shopper' | 'shopper2' | 'kid' | 'magee' | 'preacher' | 'rancher' | 'cop' | 'banker' | 'oldman' | 'mechanic' | 'baker' | 'hero' | 'salaryman' | 'kidhero' | 'clerk';
 export type View = 'front' | 'side' | 'back';
 type HairStyle = 'part' | 'bob' | 'bun' | 'slick' | 'kid' | 'wave';
 type HatKind = 'fedora' | 'cloche' | 'cap' | 'boater';
@@ -56,6 +56,8 @@ export const LOOKS: Record<Who, Look> = {
   baker: {skin: '#fbeadb', hair: '#8a5a32', hairStyle: 'wave', outfit: 'dress', main: '#e59aa8', second: '#f4ead6', accent: '#f4ead6', dots: '#fbe3e8', apron: true, shoe: '#7a3b22'},
   hero: {skin: '#f0d2b6', hair: '#2a1f1a', hairStyle: 'slick', hat: 'cap', hatCol: '#2f6f73', outfit: 'vest', main: '#d0532f', second: '#f4ead6', accent: '#2f6f73', pants: '#384a6b', shoe: '#3a2620'},
   salaryman: {skin: '#f2d6bd', hair: '#1e1612', hairStyle: 'part', outfit: 'suit', main: '#3a3f4c', second: '#f8f4ea', accent: '#b2391f', pants: '#2e3240', shoe: '#16161c'},
+  kidhero: {skin: '#f2d9c0', hair: '#2a1f1a', hairStyle: 'kid', hat: 'cap', hatCol: '#2f6f73', outfit: 'kid', main: '#d0532f', second: '#384a6b', accent: '#2f6f73', scale: 0.64, headK: 1.12, shoe: '#3a2620'},
+  clerk: {skin: '#f6e2cf', hair: '#1e1612', hairStyle: 'bun', outfit: 'suit', main: '#3a3f4c', second: '#f8f4ea', accent: '#b2391f', pants: '#2e3240', glasses: true, scale: 0.97, shoe: '#16161c'},
 };
 
 // ---------- SHAPE language per character (see review_shape/SHAPE_GUIDE.md) ----------
@@ -83,6 +85,8 @@ export const SHAPES: Record<Who, Shape> = {   // FACES: all heads are balls now 
   baker:      {w: 1.0, h: 0.99, jaw: -0.04, sq: 2.0, sk: -0.02, lean: 0.01, tilt: 0.0},
   hero:       {w: 1.0, h: 1.0, jaw: -0.03, sq: 2.2, sk: 0.03, lean: -0.015, tilt: -0.12},
   salaryman:  {w: 1.0, h: 0.98, jaw: 0.04, sq: 2.25, sk: 0.0, lean: 0.0, tilt: 0.0},
+  kidhero:    {w: 1.02, h: 0.97, jaw: 0.02, sq: 2.0, sk: 0.03, lean: 0.0, tilt: -0.16},
+  clerk:      {w: 1.0, h: 0.99, jaw: -0.02, sq: 2.05, sk: 0.0, lean: 0.01, tilt: 0.03},
 };
 type Pt = [number, number];
 /** filled brush stroke along a quadratic curve p0-c-p1 with width w0 -> wm (middle) -> w1 (pointed or blunt ends) */
@@ -587,6 +591,13 @@ export function headTex(who: Who, view: View): PartTex {
     if (!FACE_DYN && L.hat && view !== 'back' && FACE_SH.brim > 0) { g.save(); g.beginPath(); P(); g.clip(); g.globalCompositeOperation = 'multiply'; g.beginPath();
       g.moveTo(-rx * 1.2, -ry * 1.2); g.lineTo(rx * 1.2, -ry * 1.2); g.lineTo(rx * 1.2, -ry * FACE_SH.brim + ry * 0.06); g.quadraticCurveTo(0, -ry * FACE_SH.brim - ry * 0.05, -rx * 1.2, -ry * FACE_SH.brim + ry * 0.1); g.closePath();
       g.fillStyle = FACE_SH.col; g.fill(); g.restore(); }   // SHADE v10: hat-brim shadow across the forehead
+    { // SHEEN v2: soft light-side sheen + crisp glossy highlight on the forehead/cheek (light from the upper right) + warm cheek blush
+      g.save(); g.beginPath(); P(); g.clip();
+      let gr = g.createRadialGradient(rx * 0.38, -ry * 0.34, 0, rx * 0.38, -ry * 0.34, rx * 0.62); gr.addColorStop(0, 'rgba(255,255,255,.62)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr; g.fillRect(-rx * 1.5, -ry * 1.5, rx * 3, ry * 3);
+      if (view === 'front') for (const sx of [-1, 1]) { gr = g.createRadialGradient(sx * rx * 0.55, ry * 0.3, 0, sx * rx * 0.55, ry * 0.3, rx * 0.34); gr.addColorStop(0, 'rgba(255,120,130,.34)'); gr.addColorStop(1, 'rgba(255,120,130,0)'); g.fillStyle = gr; g.fillRect(-rx * 1.5, -ry * 1.5, rx * 3, ry * 3); }
+      g.beginPath(); ell(g, rx * 0.5, -ry * 0.52, rx * 0.17, ry * 0.075); g.fillStyle = 'rgba(255,255,255,.85)'; g.fill();
+      g.restore(); }
     g.beginPath(); P(); inkS(g);
     { const sw = SHAPES[who].w, sh2 = SHAPES[who].h;   // LINE-AGENT: hair edges inside the head ball are interior lines (thin, no drop)
       inkSil = (x, y) => { const r = Math.hypot(x / (rx * sw), y / (ry * sh2)); return Math.min(L.hat ? 0.3 : 1, Math.max(0, (r - 0.9) / 0.1)); };   // v12: hair under a hat = thin even line (no black blob at the temple)
@@ -663,17 +674,18 @@ export function hatTex(who: Who, view: View): PartTex | null {
 
 // ---------- face layers (shared by everybody; anchor = their own centre) ----------
 export type Expr = 'neutral' | 'happy' | 'fake' | 'sad' | 'smirk' | 'worried' | 'surprised' | 'closed' | 'wink' | 'angry' | 'smug' | 'tired' | 'proud'
-  | 'rage' | 'grin' | 'shock';   // FACES: peak-only expressions (teeth grid / big open mouth) - the defaults are small asymmetric mouths
-type EyeK = 'dot' | 'happy' | 'wide' | 'half' | 'closed' | 'wink' | 'tired' | 'blink' | 'lid';
+  | 'rage' | 'grin' | 'shock' | 'joy' | 'awe' | 'teary' | 'hopeful';   // FACES: peak-only expressions (teeth grid / big open mouth) - the defaults are small asymmetric mouths
+type EyeK = 'dot' | 'happy' | 'wide' | 'half' | 'closed' | 'wink' | 'tired' | 'blink' | 'lid' | 'shine' | 'tear';
 type BrowK = 'flat' | 'up' | 'high' | 'worried' | 'angry' | 'smirk';
 export type MouthK = 'line' | 'smile' | 'grin' | 'teeth' | 'frown' | 'smirk' | 'o' | 'wavy' | 'pant' | 'grit';
 // FACES: RC default = lidded deadpan eye + thick angled brow + small (10-15 % HW) asymmetric mouth; teeth grids only for rage / fake / grin
 export const EXPR: Record<Expr, {e: EyeK; b: BrowK; m: MouthK}> = {
   neutral: {e: 'lid', b: 'flat', m: 'line'}, happy: {e: 'happy', b: 'up', m: 'smile'}, fake: {e: 'wide', b: 'high', m: 'teeth'},
-  sad: {e: 'dot', b: 'worried', m: 'frown'}, smirk: {e: 'half', b: 'smirk', m: 'smirk'}, worried: {e: 'wide', b: 'worried', m: 'wavy'},
+  sad: {e: 'tear', b: 'worried', m: 'frown'}, smirk: {e: 'half', b: 'smirk', m: 'smirk'}, worried: {e: 'shine', b: 'worried', m: 'wavy'},
   surprised: {e: 'wide', b: 'high', m: 'o'}, closed: {e: 'closed', b: 'flat', m: 'smile'}, wink: {e: 'wink', b: 'smirk', m: 'smirk'},
-  angry: {e: 'lid', b: 'angry', m: 'frown'}, smug: {e: 'half', b: 'smirk', m: 'smile'}, tired: {e: 'tired', b: 'worried', m: 'pant'}, proud: {e: 'lid', b: 'up', m: 'smirk'},
+  angry: {e: 'lid', b: 'angry', m: 'frown'}, smug: {e: 'half', b: 'smirk', m: 'smile'}, tired: {e: 'tired', b: 'worried', m: 'pant'}, proud: {e: 'shine', b: 'up', m: 'smirk'},
   rage: {e: 'dot', b: 'angry', m: 'grit'}, grin: {e: 'wide', b: 'up', m: 'grin'}, shock: {e: 'wide', b: 'high', m: 'teeth'},
+  joy: {e: 'shine', b: 'up', m: 'grin'}, awe: {e: 'shine', b: 'high', m: 'o'}, teary: {e: 'tear', b: 'worried', m: 'wavy'}, hopeful: {e: 'shine', b: 'worried', m: 'smile'},   // EMOTION v2: big shiny eyes
 };
 export type Vis = 'M' | 'A' | 'E' | 'O';
 const EX = 0.075;   // eye half spacing
@@ -685,12 +697,22 @@ export function eyesTex(k: EyeK, q = 0): PartTex {
       const x = s * EX; let kk = k;
       if (k === 'wink') kk = s > 0 ? 'happy' : 'dot';
       g.beginPath();
-      if (kk === 'dot') { ell(g, x, 0, 0.019, 0.027); g.fillStyle = INK; g.fill(); g.beginPath(); g.arc(x - 0.006, -0.01, 0.0055, 0, 7); g.fillStyle = '#fff'; g.fill(); }
+      if (kk === 'dot') { ell(g, x, 0, 0.019, 0.027); g.fillStyle = INK; g.fill(); g.beginPath(); g.arc(x - 0.006, -0.01, 0.0055, 0, 7); g.fillStyle = '#fff'; g.fill(); g.beginPath(); g.arc(x + 0.007, 0.012, 0.003, 0, 7); g.fill(); }
       else if (kk === 'wide') { ell(g, x, 0, 0.034, 0.038); fillInk(g, '#fff', 0.008); g.beginPath(); g.arc(x + px, 0.004, 0.014, 0, 7); g.fillStyle = INK; g.fill(); g.beginPath(); g.arc(x + px - 0.004, -0.001, 0.004, 0, 7); g.fillStyle = '#fff'; g.fill(); }
+      else if (kk === 'shine' || kk === 'tear') { // EMOTION v2: big wet eye - white, dark iris ring, two glints (+ water line for tears)
+        ell(g, x, 0, 0.037, 0.043); fillInk(g, '#fff', 0.008);
+        g.save(); g.beginPath(); ell(g, x, 0, 0.037, 0.043); g.clip();
+        if (kk === 'tear') { g.beginPath(); g.rect(x - 0.05, 0.016, 0.1, 0.04); g.fillStyle = 'rgba(150,215,255,.85)'; g.fill(); }
+        g.restore();
+        g.beginPath(); g.arc(x + px, 0.004, 0.0225, 0, 7); g.fillStyle = '#3a2430'; g.fill();
+        g.beginPath(); g.arc(x + px, 0.004, 0.0155, 0, 7); g.fillStyle = INK; g.fill();
+        g.beginPath(); g.arc(x + px - 0.0075, -0.0085, 0.0082, 0, 7); g.fillStyle = '#fff'; g.fill();
+        g.beginPath(); g.arc(x + px + 0.0085, 0.0125, 0.0038, 0, 7); g.fillStyle = '#fff'; g.fill(); }
       else if (kk === 'lid') { // FACES: RC deadpan - tall black oval, flat upper lid cutting across the top third, lid bar tilts down toward the nose
         g.save(); g.beginPath(); g.moveTo(x - 0.05, -0.006 + s * 0.002); g.lineTo(x + 0.05, -0.006 - s * 0.002); g.lineTo(x + 0.05, 0.06); g.lineTo(x - 0.05, 0.06); g.closePath(); g.clip();
         g.beginPath(); ell(g, x, 0.004, 0.0205, 0.03); g.fillStyle = INK; g.fill(); g.restore();
-        brush(g, [x - s * 0.031, -0.0075 - 0.0005], [x, -0.0075], [x + s * 0.031, -0.0055], 0.009, 0.0095, 0.004); }
+        brush(g, [x - s * 0.031, -0.0075 - 0.0005], [x, -0.0075], [x + s * 0.031, -0.0055], 0.009, 0.0095, 0.004);
+        g.beginPath(); g.arc(x - 0.0065, 0.0075, 0.0048, 0, 7); g.fillStyle = '#fff'; g.fill(); }   // EMOTION v2: glint in the deadpan eye
       else if (kk === 'happy') brush(g, [x - 0.026, 0.0075], [x, -0.0315], [x + 0.026, 0.0075], 0.004, 0.013, 0.004);   // SHAPE: tapered arcs
       else if (kk === 'closed') brush(g, [x - 0.0224, -0.003], [x, 0.027], [x + 0.0224, -0.003], 0.004, 0.012, 0.004);
       else if (kk === 'blink') { g.moveTo(x - 0.022, 0.004); g.quadraticCurveTo(x, 0.01, x + 0.022, 0.004); g.lineWidth = 0.01; g.strokeStyle = INK; g.stroke(); }
