@@ -97,3 +97,53 @@ export const PowerLine: React.FC<{x: number; z: number; len: number}> = ({x, z, 
   <Cy p={[0, 3.2, 0]} r={0.08} h={6.4} m={toon('#6a5a4a')} /><Bx p={[0, 5.9, 0]} s={[1.4, 0.08, 0.08]} m={toon('#6a5a4a')} />
   {[-0.6, 0, 0.6].map((o, i) => <Bx key={i} p={[len / 2, 5.88 - i * 0.02 - Math.abs(o) * 0, o * 0.1]} s={[len, 0.02, 0.02]} m={toon('#22222a')} cast={false} />)}
   <Bx p={[0.4, 5.3, 0]} s={[0.5, 0.35, 0.3]} m={toon('#7a7a86')} /></group>;
+
+// ---------- more surroundings (v2) ----------
+export const Sakura: React.FC<{p: V3; s?: number}> = ({p, s = 1}) => <group position={p} scale={s}>
+  <Cy p={[0, 0.9, 0]} r={0.14} h={1.8} m={toon('#6a4a3a')} />
+  {[[0, 2.3, 0, 0.9], [-0.6, 2.0, 0.2, 0.6], [0.65, 2.1, -0.1, 0.65], [0.1, 2.8, 0.1, 0.55], [-0.3, 2.6, -0.4, 0.5]].map((q, i) => <Sp key={i} p={[q[0], q[1], q[2]]} r={q[3]} m={toon(['#f8b8cc', '#fbc9d8', '#f4a0b8'][i % 3])} />)}
+  {Array.from({length: 7}, (_, i) => <Sp key={'b' + i} p={[Math.sin(i * 2.1) * 0.9, 0.04, Math.cos(i * 2.1) * 0.9]} r={0.06} m={toon('#fbc9d8')} />)}</group>;
+export const Nobori: React.FC<{p: V3; col: string; text?: string}> = ({p, col, text = 'OPEN'}) => <group position={p}>
+  <Cy p={[0, 1.1, 0]} r={0.02} h={2.2} m={shiny('#c8ccd6')} /><Bx p={[0.01, 1.05, 0]} s={[0.04, 0.04, 0.04]} m={toon('#2a2a33')} />
+  <Sign p={[0, 1.2, 0.03]} s={[0.4, 1.4]} lines={[text]} bg={col} fg='#ffffff' border={false} /></group>;
+export const Pennants: React.FC<{a: V3; b: V3; n?: number}> = ({a, b, n = 14}) => <group>
+  {Array.from({length: n}, (_, i) => { const u = (i + 0.5) / n, x = a[0] + (b[0] - a[0]) * u, y = a[1] + (b[1] - a[1]) * u - 0.35 * Math.sin(u * Math.PI), z = a[2] + (b[2] - a[2]) * u;
+    return <Bx key={i} p={[x, y - 0.12, z]} s={[0.22, 0.26, 0.015]} m={toon(['#e8483a', '#f2b234', '#2f9a5a', '#3a7ad6', '#d6246e'][i % 5])} cast={false} rz={(i % 2 ? 0.08 : -0.08)} />; })}
+  <Bx p={[(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - 0.18, (a[2] + b[2]) / 2]} s={[Math.abs(b[0] - a[0]), 0.015, 0.015]} m={toon('#2a2a33')} cast={false} /></group>;
+export const Crosswalk: React.FC<{x: number; z0: number; z1: number}> = ({x, z0, z1}) => <group>
+  {Array.from({length: 9}, (_, i) => <Bx key={i} p={[x + (i - 4) * 0.6, 0.012, (z0 + z1) / 2]} s={[0.36, 0.01, z1 - z0]} m={toon('#f4f0e4')} cast={false} />)}</group>;
+export const Bollard: React.FC<{p: V3}> = ({p}) => <group position={p}><Cy p={[0, 0.3, 0]} r={0.07} h={0.6} m={shiny('#c8ccd6')} /><Cy p={[0, 0.5, 0]} r={0.072} h={0.08} m={toon('#e8483a')} /></group>;
+export const Mailbox: React.FC<{p: V3}> = ({p}) => <group position={p}><Bx p={[0, 0.55, 0]} s={[0.45, 1.1, 0.4]} m={shiny('#d3221a')} /><Bx p={[0, 0.8, 0.205]} s={[0.3, 0.06, 0.01]} m={toon('#101820')} cast={false} /><Bx p={[0, 0.3, 0.205]} s={[0.3, 0.12, 0.01]} m={toon('#f4e8c0')} cast={false} /></group>;
+export const TrafficLight: React.FC<{p: V3; f?: number}> = ({p, f = 0}) => { const g = Math.floor(f / 90) % 2 === 0; return <group position={p}>
+  <Cy p={[0, 1.6, 0]} r={0.05} h={3.2} m={toon('#3a3a44')} /><Bx p={[0, 3.25, 0]} s={[0.3, 0.8, 0.25]} m={toon('#2a2a33')} />
+  {[[3.5, '#e8302a', !g], [3.25, '#f2b234', false], [3.0, '#2fbf5a', g]].map((q, i) => <Sp key={i} p={[0, q[0] as number, 0.13]} r={0.08} m={q[2] ? glowM(1.8, 1.8, 1.8) : toon(q[1] as string)} />)}</group>; };
+export const Stanchion: React.FC<{a: V3; b: V3}> = ({a, b}) => <group>
+  {[a, b].map((q, i) => <group key={i} position={q}><Cy p={[0, 0.45, 0]} r={0.03} h={0.9} m={shiny('#d8c070')} /><Cy p={[0, 0.02, 0]} r={0.16} h={0.04} m={shiny('#d8c070')} /><Sp p={[0, 0.92, 0]} r={0.05} m={shiny('#d8c070')} /></group>)}
+  <Bx p={[(a[0] + b[0]) / 2, 0.82, (a[2] + b[2]) / 2]} s={[Math.max(0.03, Math.abs(b[0] - a[0])), 0.03, Math.max(0.03, Math.abs(b[2] - a[2]))]} m={toon('#c8302a')} cast={false} /></group>;
+export const Lockers: React.FC<{p: V3; n?: number; ry?: number}> = ({p, n = 6, ry = 0}) => <group position={p} rotation={[0, ry, 0]}>
+  {Array.from({length: n}, (_, i) => <group key={i}><Bx p={[i * 0.42, 0.95, 0]} s={[0.4, 1.9, 0.5]} m={toon(['#4a8ad6', '#3a7ad6', '#5a9ae6'][i % 3])} /><Bx p={[i * 0.42, 1.4, 0.26]} s={[0.3, 0.02, 0.01]} m={toon('#1a2a4a')} cast={false} /><Bx p={[i * 0.42 + 0.12, 1.0, 0.27]} s={[0.04, 0.12, 0.02]} m={shiny('#d8dce6')} cast={false} /></group>)}</group>;
+export const Globe: React.FC<{p: V3; f?: number}> = ({p, f = 0}) => <group position={p}><Cy p={[0, 0.05, 0]} r={0.14} h={0.1} m={toon('#6a4a3a')} /><Cy p={[0, 0.2, 0]} r={0.02} h={0.3} m={shiny('#d8c070')} />
+  <group position={[0, 0.5, 0]} rotation={[0, f * 0.02, 0.4]}><Sp p={[0, 0, 0]} r={0.26} m={toon('#2a6fb0', 1.2)} /><Sp p={[0.1, 0.08, 0.17]} r={[0.1, 0.07, 0.07]} m={toon('#5aa86a')} /><Sp p={[-0.14, -0.06, 0.15]} r={[0.08, 0.1, 0.06]} m={toon('#6cb46c')} /></group></group>;
+export const Cranes: React.FC<{a: V3; b: V3}> = ({a, b}) => <group>
+  {Array.from({length: 8}, (_, i) => { const u = (i + 0.5) / 8; return <group key={i} position={[a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u - 0.2 * Math.sin(u * Math.PI), a[2] + (b[2] - a[2]) * u]}><Bx p={[0, -0.2, 0]} s={[0.01, 0.4, 0.01]} m={toon('#cfcfd8')} cast={false} /><Bx p={[0, -0.45, 0]} s={[0.17, 0.17, 0.02]} m={toon(['#f48fb0', '#8fd4f4', '#f4d88f', '#a8f4a0'][i % 4])} cast={false} rz={0.785} /></group>; })}</group>;
+export const MobileToy: React.FC<{p: V3; f: number}> = ({p, f}) => <group position={p}><Cy p={[0, 0.3, 0]} r={0.01} h={0.6} m={toon('#cfcfd8')} />
+  <group position={[0, 0, 0]} rotation={[0, f * 0.03, 0]}>{[0, 1, 2, 3].map((i) => <group key={i} rotation={[0, i * 1.57, 0]}><Bx p={[0.22, 0, 0]} s={[0.44, 0.01, 0.01]} m={toon('#cfcfd8')} cast={false} /><Sp p={[0.44, -0.12, 0]} r={0.06} m={toon(['#f48fb0', '#8fd4f4', '#f4d88f', '#a8f4a0'][i])} /></group>)}</group></group>;
+export const Cloud: React.FC<{p: V3; s?: number; f?: number}> = ({p, s = 1, f = 0}) => <group position={[p[0] + Math.sin(f * 0.01 + p[2]) * 0.4, p[1], p[2]]} scale={s}>
+  {[[0, 0, 0, 0.5], [0.5, -0.05, 0.05, 0.4], [-0.5, -0.08, 0, 0.38], [0.15, 0.2, 0, 0.35]].map((q, i) => <Sp key={i} p={[q[0], q[1], q[2]]} r={[q[3] * 1.3, q[3], q[3]]} m={toon('#ffffff')} />)}</group>;
+export const PlaneModel: React.FC<{p: V3; ry?: number}> = ({p, ry = 0}) => <group position={p} rotation={[0, ry, 0]}>
+  <Sp p={[0, 0, 0]} r={[0.55, 0.12, 0.12]} m={shiny('#f4f6fa')} /><Bx p={[0.0, 0, 0]} s={[0.3, 0.02, 1.1]} m={shiny('#d3221a')} /><Bx p={[-0.45, 0.1, 0]} s={[0.12, 0.2, 0.02]} m={shiny('#d3221a')} /><Bx p={[-0.45, 0.04, 0]} s={[0.12, 0.02, 0.4]} m={shiny('#d3221a')} /></group>;
+export const Pagoda: React.FC<{p: V3; s?: number}> = ({p, s = 1}) => <group position={p} scale={s}>
+  {[0, 1, 2, 3].map((i) => <group key={i}><Bx p={[0, 0.2 + i * 0.42, 0]} s={[0.55 - i * 0.08, 0.3, 0.55 - i * 0.08]} m={toon('#f4e8c8')} /><Bx p={[0, 0.4 + i * 0.42, 0]} s={[0.9 - i * 0.14, 0.06, 0.9 - i * 0.14]} m={toon('#c8302a')} /></group>)}<Cy p={[0, 1.95, 0]} r={0.02} h={0.4} m={shiny('#d8c070')} /></group>;
+export const Suitcase: React.FC<{p: V3; col: string; ry?: number}> = ({p, col, ry = 0}) => <group position={p} rotation={[0, ry, 0]}>
+  <Bx p={[0, 0.25, 0]} s={[0.5, 0.5, 0.2]} m={shiny(col)} /><Bx p={[0, 0.55, 0]} s={[0.2, 0.05, 0.04]} m={toon('#2a2a33')} cast={false} /><Bx p={[0.13, 0.25, 0.105]} s={[0.04, 0.4, 0.01]} m={toon('#f4f0e4')} cast={false} /></group>;
+export const Tower: React.FC<{p: V3; h: number; col: string}> = ({p, h, col}) => <group position={p}><Bx p={[0, h / 2, 0]} s={[0.6, h, 0.6]} m={toon(col)} />
+  {Array.from({length: Math.floor(h / 0.35)}, (_, i) => <Bx key={i} p={[0, 0.25 + i * 0.35, 0.305]} s={[0.46, 0.12, 0.01]} m={glowM(1.5, 1.4, 1.0)} cast={false} />)}</group>;
+export const CeilingLamp: React.FC<{p: V3; f?: number}> = ({p}) => <group position={p}><Cy p={[0, 0.2, 0]} r={0.01} h={0.4} m={toon('#cfcfd8')} /><Cy p={[0, 0, 0]} r={0.28} h={0.12} m={toon('#fbf3e0')} /><mesh geometry={CYL} material={glowM(1.7, 1.6, 1.4)} position={[0, -0.07, 0]} scale={[0.22, 0.02, 0.22]} /></group>;
+/** starfield + soft nebula backdrop for the map cell walls */
+export const Backdrop: React.FC<{p: V3; s: [number, number]; ry?: number}> = ({p, s, ry = 0}) => {
+  const m = useMemo(() => new THREE.MeshBasicMaterial({map: canvasTex('cosmos', 1024, 512, (g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#0b1230'); gr.addColorStop(1, '#2a3f7a'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(255,255,255,${0.35 + (i % 5) * 0.12})`; g.beginPath(); g.arc((i * 193) % w, (i * 71) % (h * 0.75), 1 + (i % 3) * 0.8, 0, 7); g.fill(); }
+    for (const [x, y, r, c] of [[200, 120, 140, 'rgba(120,80,200,.25)'], [760, 90, 170, 'rgba(60,140,220,.25)'], [500, 250, 190, 'rgba(230,90,150,.18)']] as any) { const rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, c); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = rg; g.fillRect(0, 0, w, h); } }), toneMapped: false}), []);
+  return <mesh geometry={PLN} material={m} position={p} scale={[s[0], s[1], 1]} rotation={[0, ry, 0]} />;
+};

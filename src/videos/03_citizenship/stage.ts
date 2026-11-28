@@ -20,19 +20,20 @@ const walker = (who: PersonP['who'], lf: number, k: Key[], o: Partial<PersonP> =
 const fx = (n: number) => n.toFixed(3);
 const at = (who: PersonP['who'], x: number, z: number, o: Partial<PersonP> = {}): PersonP => ({who, p: [x, 0, z] as V3, act: 'idle', ...o});
 const H = CELL.hospital, S = CELL.school, O = CELL.office, M = CELL.map;
-const OX = O - 1.2;   // customer / clerk window x
+const OX = O - 2.4;   // customer / clerk: centre of service window 1
+const staff = (): PersonP[] => [at('banker', O, OFFICE.clerkZ, {bg: true, expr: 'neutral'}), at('woman', O + 2.4, OFFICE.clerkZ, {bg: true, expr: 'happy'})];
 
 export function stage(f: number): Stage {
   const s = shotAt(f), lf = s.lf, P: PersonP[] = [], X: string[] = [];
   switch (s.name) {
     case 'hook': {   // three 1-second beats, all on the street: hospital door / kid to school / you at 18 with the rejected form
-      P.push(at('woman', -6.3, 5.5, {expr: 'joy'}), at('man', -7.3, 5.5, {expr: 'awe'})); X.push('baby:-6.3,0.98,5.72');
+      P.push(at('woman', -6.3, 5.5, {expr: 'joy'}), at('man', -7.3, 5.5, {expr: 'awe'})); X.push('baby:-6.75,0.7,5.6');
       P.push(walker('kidhero', lf, [[0, -1.5, 6.4], [121, -5.0, 6.4]], {expr: 'joy'}), walker('kid', lf, [[0, -0.7, 6.8], [121, -4.2, 6.8]], {bg: true, expr: 'happy'}));
-      P.push(at('hero', PASS_DOOR[0], 5.7, {act: 'slump', expr: 'shock'})); X.push(`paper:${fx(PASS_DOOR[0] + 0.3)},1.0,5.9,1`);
+      P.push(at('hero', PASS_DOOR[0], 5.7, {act: 'slump', expr: 'shock'})); X.push(`xmark:${fx(PASS_DOOR[0] + 1.5)},1.9,4.2`);
       break;
     }
     case 'hospital': {   // born in a hospital in Tokyo
-      P.push(at('woman', H + 2.0, -71.6, {expr: 'joy'}), at('man', H + 3.1, -71.6, {expr: 'awe'})); X.push(`baby:${fx(H + 2.0)},0.98,-71.4`); break;
+      P.push(at('woman', H + 2.0, -71.6, {expr: 'joy'}), at('man', H + 3.1, -71.6, {expr: 'awe'})); X.push(`baby:${fx(H + 1.45)},0.7,-71.3`); break;
     }
     case 'decades': {   // parents living their life in Tokyo
       P.push(walker('woman', lf, [[0, -6.0, WALK_Z], [51, -4.4, WALK_Z]], {expr: 'happy'}), walker('man', lf, [[0, -6.9, WALK_Z], [51, -5.3, WALK_Z]], {expr: 'happy'})); break;
@@ -54,37 +55,37 @@ export function stage(f: number): Stage {
     }
     case 'apply': {   // you walk to the passport office
       const k: Key[] = [[0, 3.4, 6.4], [75, 7.0, 6.4]], [x, z] = path(lf, k);
-      P.push(walker('hero', lf, k, {expr: 'hopeful'})); X.push(`paper:${fx(x + 0.28)},1.0,${fx(z + 0.12)},0`); break;
+      P.push(walker('hero', lf, k, {expr: 'hopeful'})); void x; void z; break;
     }
     case 'office': {   // hand over the birth certificate and wait
       const hand = lf >= W('office', 'hand') + 18;
       P.push(at('hero', OX, OFFICE.customerZ, {view: 'back', expr: 'hopeful', ...seq(lf, [[0, 'idle', 'hopeful'], [W('office', 'hand'), 'present', 'hopeful'], [W('office', 'wait'), 'idle', 'worried']])}));
       P.push(at('clerk', OX, OFFICE.clerkZ, {expr: 'neutral'}));
       P.push(at('oldman', O - 3.5, -67.2, {sit: true, view: 'back', bg: true}), at('grandma', O - 2.7, -67.2, {sit: true, view: 'back', bg: true}), at('salaryman', O + 0.5, -67.2, {sit: true, view: 'back', bg: true}));
-      X.push(hand ? `paper:${fx(OX + 0.05)},1.13,${fx(OFFICE.counterZ + 0.05)},0` : `paper:${fx(OX + 0.3)},1.0,${fx(OFFICE.customerZ - 0.15)},0`); X.push('ticket:42'); break;
+      if (hand) X.push(`paper:${fx(OX + 0.05)},1.13,${fx(OFFICE.counterZ + 0.05)},0`); X.push('ticket:42'); P.push(...staff()); break;
     }
     case 'clerk': {   // "you're not a Japanese citizen"
       P.push(at('hero', OX, OFFICE.customerZ, {view: 'back'}));
       P.push(at('clerk', OX, OFFICE.clerkZ, seq(lf, [[0, 'idle', 'neutral'], [W('clerk', 'tells'), 'talk', 'worried'], [W('clerk', 'citizen'), 'shrug', 'sad']])));
-      X.push(`paper:${fx(OX + 0.05)},1.13,${fx(OFFICE.counterZ + 0.05)},0`, 'ticket:42'); break;
+      X.push(`paper:${fx(OX + 0.05)},1.13,${fx(OFFICE.counterZ + 0.05)},0`, 'ticket:42'); P.push(...staff()); break;
     }
     case 'confused': {   // three fast reaction beats: confused / born here / lived here
       P.push(at('hero', OX, OFFICE.customerZ, seq(lf, [[0, 'idle', 'shock'], [W('confused', 'born'), 'slump', 'teary'], [W('confused', 'lived'), 'present', 'teary']])));
       P.push(at('clerk', OX, OFFICE.clerkZ, {expr: 'worried'}));
-      X.push(`qm:${fx(OX)},2.25,${fx(OFFICE.customerZ)},${fx(cl(lf / 12))}`, `paper:${fx(OX + 0.05)},1.13,${fx(OFFICE.counterZ + 0.05)},1`, 'ticket:42'); break;
+      X.push(`qm:${fx(OX)},2.25,${fx(OFFICE.customerZ)},${fx(cl(lf / 12))}`, `paper:${fx(OX + 0.05)},1.13,${fx(OFFICE.counterZ + 0.05)},1`, 'ticket:42'); P.push(...staff()); break;
     }
     case 'records': {   // school records slammed on the counter, nothing changes
       const stack = lf >= W('records', 'records');
       P.push(at('hero', OX, OFFICE.customerZ, seq(lf, [[0, 'present', 'hopeful'], [W('records', 'nothing'), 'slump', 'teary']])));
       P.push(at('clerk', OX, OFFICE.clerkZ, seq(lf, [[0, 'idle', 'worried'], [W('records', 'records') + 14, 'shrug', 'sad'], [W('records', 'nothing'), 'shrug', 'sad']])));
-      if (stack) X.push(`stack:${fx(OX - 0.2)},1.11,${fx(OFFICE.counterZ + 0.05)}`); X.push('ticket:42'); break;
+      if (stack) X.push(`stack:${fx(OX - 0.2)},1.11,${fx(OFFICE.counterZ + 0.05)}`); X.push('ticket:42'); P.push(...staff()); break;
     }
     case 'stranger': {   // outside, a strange discovery
       P.push(at('hero', 6.2, 6.4, {act: 'think', expr: 'awe'})); break;
     }
     case 'faraway': {   // someone born thousands of miles away, never been to Japan, citizen from birth
       P.push(at('woman', M + 3.0, -71.6, {expr: 'joy'}), at('hero', M - 3.2, -67.8, {expr: 'worried'}));
-      X.push(`baby:${fx(M + 3.0)},0.98,-71.4`, `pass:${fx(M + 3.4)},1.3,-71.3,1`); break;
+      X.push(`baby:${fx(M + 2.5)},0.62,-71.2`, `pass:${fx(M + 3.55)},0.72,-71.3,0.5`); break;
     }
     case 'question': {   // how can that be? the scale tips
       const t = cl((lf - W('question', 'citizen')) / 22);
@@ -97,7 +98,7 @@ export function stage(f: number): Stage {
     }
     case 'rule': {   // parents' passports pass citizenship down to the child
       P.push(at('man', M - 1.0, -71.4, {expr: 'proud'}), at('woman', M + 0.6, -71.4, {expr: 'proud'}), at('kidhero', M - 0.2, -69.3, {expr: 'hopeful'}));
-      X.push(`pass:${fx(M - 0.6)},1.35,-70.8,1`, `pass:${fx(M + 0.2)},1.35,-70.8,1`, `beam:${fx(cl((lf - W('rule', 'depends')) / 45))}`); break;
+      X.push(`pass:${fx(M - 0.62)},0.95,-70.9,0.7`, `pass:${fx(M + 0.22)},0.95,-70.9,0.7`, `beam:${fx(cl((lf - W('rule', 'depends')) / 45))}`); break;
     }
     case 'twist': {   // pull back into the crowd, end on your face
       P.push(at('hero', 0.0, 6.7, {expr: 'teary'}));

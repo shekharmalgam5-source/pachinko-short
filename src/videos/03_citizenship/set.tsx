@@ -7,7 +7,7 @@ import {Town, StreetClock} from '../../engine/kits/downtown/town';
 import {Car} from '../../engine/kits/downtown/street';
 import {NEAR_Z} from '../../engine/kits/downtown/townData';
 import {CELL, OFFICE} from './world';
-import {BOX, SPH, CYL, PLN, Bx, Sp, Cy, toon, shiny, glowM, canvasTex, textTex, Sign, GlossFloor, Poster, Vending, Bike, Plant, Lantern, WallClock, Bench, Desk, Flag, PowerLine, type V3} from './detail';
+import {BOX, SPH, CYL, PLN, Bx, Sp, Cy, toon, shiny, glowM, canvasTex, textTex, Sign, GlossFloor, Poster, Vending, Bike, Plant, Lantern, WallClock, Bench, Desk, Flag, PowerLine, Sakura, Nobori, Crosswalk, Bollard, Mailbox, TrafficLight, Stanchion, Lockers, Globe, Cranes, MobileToy, Cloud, PlaneModel, Pagoda, Suitcase, Tower, CeilingLamp, Backdrop, type V3} from './detail';
 import {shotAt, type Stage} from './stage';
 export const AUDIO: {voice: string | null; bed: string | null} = {voice: '03_citizenship/voice.mp3', bed: null};
 export const useSetData = () => ({});
@@ -40,7 +40,7 @@ const Passport: React.FC<{p: V3; glow: number; f: number}> = ({p, glow, f}) => {
   return <group position={p} rotation={[0.2, 0, 0.1]}>
     <Bx p={[0, 0, 0]} s={[0.3, 0.42, 0.05]} m={shiny('#1d2f6a')} cast={false} /><Cy p={[0, 0.03, 0.03]} r={0.07} h={0.01} m={shiny('#e8c860')} rz={Math.PI / 2} />
     <Bx p={[0, -0.12, 0.03]} s={[0.18, 0.02, 0.01]} m={toon('#e8c860')} cast={false} />
-    {glow > 0.02 && <mesh geometry={SPH} material={halo} scale={[0.34 * (1 + 0.12 * Math.sin(f * 0.2)) * glow, 0.4 * glow, 0.2]} />}
+    {glow > 0.02 && <mesh geometry={SPH} material={halo} scale={[0.2 * (1 + 0.1 * Math.sin(f * 0.2)) * glow, 0.24 * glow, 0.12]} />}
   </group>;
 };
 const Baby: React.FC<{p: V3}> = ({p}) => <group position={p}>
@@ -51,9 +51,9 @@ const QMarks: React.FC<{p: V3; u: number; f: number}> = ({p, u, f}) => {
   if (u < 0.02) return null;
   return <group position={p}>{[[-0.5, 0.2, 0.0], [0.5, 0.3, 0.8], [0.0, 0.6, 1.6]].map((q, i) => <mesh key={i} geometry={PLN} material={ms} position={[q[0], q[1] + 0.05 * Math.sin(f * 0.13 + q[2]), 0.1 * i]} scale={[0.34 * u, 0.34 * u, 1]} rotation={[0, 0, 0.2 * (i - 1) + 0.08 * Math.sin(f * 0.1 + i)]} />)}</group>;
 };
-const Check: React.FC<{p: V3; ok: boolean; u: number}> = ({p, ok, u}) => {
+const Check: React.FC<{p: V3; ok: boolean; u: number; size?: number}> = ({p, ok, u, size = 0.7}) => {
   const m = useMemo(() => new THREE.MeshBasicMaterial({map: canvasTex(ok ? 'ck' : 'xx', 128, 128, (g) => { g.lineCap = 'round'; g.lineWidth = 22; g.strokeStyle = ok ? '#2fbf5a' : '#e8302a'; g.beginPath(); if (ok) { g.moveTo(24, 70); g.lineTo(52, 100); g.lineTo(106, 30); } else { g.moveTo(26, 26); g.lineTo(102, 102); g.moveTo(102, 26); g.lineTo(26, 102); } g.stroke(); }), transparent: true, toneMapped: false}), [ok]);
-  return u < 0.02 ? null : <mesh geometry={PLN} material={m} position={p} scale={[0.7 * (1 + 0.5 * (1 - u)) * u, 0.7 * (1 + 0.5 * (1 - u)) * u, 1]} />;
+  return u < 0.02 ? null : <mesh geometry={PLN} material={m} position={p} scale={[size * (1 + 0.5 * (1 - u)) * u, size * (1 + 0.5 * (1 - u)) * u, 1]} />;
 };
 
 // ---------- cells ----------
@@ -76,6 +76,9 @@ const Hospital: React.FC<{f: number; lit: boolean}> = ({f, lit}) => {
     <group position={[cx + 3.8, 0, -71.4]}><Bx p={[0, 0.35, 0]} s={[0.6, 0.7, 0.6]} m={toon('#d9b27a')} /><Cy p={[0, 0.85, 0]} r={0.1} h={0.28} m={toon('#7fc8e8')} />{[[0, 1.1, 0, '#e8483a'], [-0.1, 1.05, 0.04, '#f2b234'], [0.1, 1.05, -0.04, '#f48fb0']].map((q, i) => <Sp key={i} p={[q[0] as number, q[1] as number, q[2] as number]} r={0.1} m={toon(q[3] as string)} />)}</group>
     <Sign p={[cx - 3.9, 2.9, z0 + 0.05]} s={[0.9, 0.9]} lines={['+']} bg='#ffffff' fg='#d3221a' /><Poster p={[cx - 5.45, 1.8, -70]} s={[0.7, 1.0]} seed={1} ry={Math.PI / 2} /><Poster p={[cx - 5.45, 1.8, -72.2]} s={[0.7, 1.0]} seed={3} ry={Math.PI / 2} />
     <Plant p={[cx - 4.8, 0, -74.8]} s={1.3} /><WallClock p={[cx + 5.4, 2.7, -72]} f={f} ry={-Math.PI / 2} />
+    <MobileToy p={[cx - 2.6, 1.5, -73.2]} f={f} /><Bx p={[cx - 5.35, 1.0, -70]} s={[0.08, 0.06, 11.6]} m={toon('#c8d8d4')} cast={false} /><Bx p={[cx, 3.35, -74.2]} s={[10, 0.05, 0.05]} m={toon('#cfcfd8')} cast={false} />
+    <group position={[cx - 4.6, 0, -74.3]}><Bx p={[0, 0.5, 0]} s={[1.2, 1.0, 0.5]} m={toon('#f4f6f8')} />{[0, 1, 2].map((i) => <Bx key={i} p={[0, 0.25 + i * 0.3, 0.26]} s={[1.0, 0.02, 0.01]} m={toon('#9ab0ac')} cast={false} />)}<Sp p={[0.3, 1.1, 0]} r={0.1} m={toon('#f48fb0')} /><Bx p={[-0.25, 1.08, 0]} s={[0.2, 0.16, 0.2]} m={toon('#8fd4f4')} /></group>
+    <Bx p={[cx, 0.012, -68]} s={[10, 0.01, 0.2]} m={toon('#59b8b0')} cast={false} /><Poster p={[cx + 5.45, 1.7, -69.2]} s={[0.9, 0.7]} seed={2} ry={-Math.PI / 2} /><CeilingLamp p={[cx - 2.2, 3.4, -70]} /><CeilingLamp p={[cx + 2.2, 3.4, -70]} />
     {lit && <><pointLight position={[cx, 2.9, -71]} intensity={16} distance={13} decay={1.4} color='#fff1de' /><pointLight position={[cx, 2.4, -75]} intensity={9} distance={8} decay={1.5} color='#bfe4ff' /></>}
   </group>;
 };
@@ -96,6 +99,8 @@ const School: React.FC<{f: number; lit: boolean}> = ({f, lit}) => {
     <Bx p={[cx - 5.3, 0.6, -71]} s={[0.4, 1.2, 4]} m={toon('#c8844a')} />{[0, 1, 2, 3, 4, 5].map((i) => <Bx key={i} p={[cx - 5.25, 1.35, -72.6 + i * 0.55]} s={[0.25, 0.3, 0.4]} m={toon(['#e8483a', '#3a7ad6', '#f2b234', '#2f9a5a'][i % 4])} cast={false} />)}
     <Poster p={[cx - 5.45, 2.4, -68.5]} s={[0.8, 1.1]} seed={0} ry={Math.PI / 2} /><Poster p={[cx - 5.45, 2.4, -66.8]} s={[0.8, 1.1]} seed={2} ry={Math.PI / 2} />
     <WallClock p={[cx + 3.2, 3.1, z0 + 0.1]} f={f} /><Flag p={[cx - 4.6, 0, -75.2]} />
+    <Lockers p={[cx + 2.9, 0, z0 + 0.3]} n={4} /><Globe p={[cx + 4.3, 0.73, -73.5]} f={f} /><Cranes a={[cx - 5, 3.2, -70]} b={[cx + 5, 3.2, -70]} /><Cranes a={[cx - 5, 3.2, -73]} b={[cx + 5, 3.2, -73]} />
+    <CeilingLamp p={[cx - 3, 3.4, -71]} /><CeilingLamp p={[cx + 3, 3.4, -71]} /><CeilingLamp p={[cx, 3.4, -67]} /><Poster p={[cx - 3.2, 3.0, z0 + 0.08]} s={[0.9, 0.6]} seed={1} /><Plant p={[cx + 5.0, 0, -65.2]} s={1.2} />
     {lit && <><pointLight position={[cx, 3.0, -70]} intensity={18} distance={14} decay={1.4} color='#fff4dc' /><pointLight position={[cx + 4.5, 2.2, -69]} intensity={10} distance={8} decay={1.5} color='#ffe8b0' /></>}
   </group>;
 };
@@ -107,9 +112,15 @@ const Office: React.FC<{f: number; no: number; lit: boolean}> = ({f, no, lit}) =
     <GlossFloor p={[cx, 0.005, CELL.cz]} s={[CELL.w, 12]} base='#e9dfc9' line='#c9b99a' streak={0.28} />
     {[-3, 3].map((x) => <Bx key={x} p={[cx + x, 0.012, -70]} s={[0.12, 0.01, 10]} m={toon('#f2b234')} cast={false} />)}
     {/* counter with glass partition and two service windows */}
-    <Bx p={[cx, 0.52, OFFICE.counterZ]} s={[7.2, 1.05, 0.7]} m={toon('#7a5a3a')} /><Bx p={[cx, 1.08, OFFICE.counterZ]} s={[7.3, 0.06, 0.8]} m={shiny('#e8e0cc')} />
+    <Bx p={[cx, 0.52, OFFICE.counterZ]} s={[7.2, 1.05, 0.7]} m={toon('#a88458')} /><Bx p={[cx, 1.08, OFFICE.counterZ]} s={[7.3, 0.06, 0.8]} m={shiny('#e8e0cc')} />
     <mesh geometry={PLN} material={glass} position={[cx, 1.75, OFFICE.counterZ + 0.2]} scale={[7.2, 1.3, 1]} />{[-3.6, -1.2, 1.2, 3.6].map((x) => <Bx key={x} p={[cx + x, 1.75, OFFICE.counterZ + 0.2]} s={[0.07, 1.3, 0.07]} m={shiny('#c8ccd6')} />)}
     <Sign p={[cx, 2.95, z0 + 0.05]} s={[3.4, 0.8]} lines={['PASSPORT']} bg='#1d3a6e' fg='#ffffff' /><mesh geometry={PLN} material={led} position={[cx - 3.4, 2.95, z0 + 0.05]} scale={[1.3, 0.65, 1]} />
+    {[-2.4, 0, 2.4].map((x, i) => <Sign key={x} p={[cx + x, 2.45, OFFICE.counterZ + 0.25]} s={[0.5, 0.5]} lines={[String(i + 1)]} bg='#1d3a6e' fg='#fff36a' />)}
+    {[-3.3, -2.4, -1.5, -0.6, 0.3, 1.2, 2.1, 3.0].map((x) => <Bx key={x} p={[cx + x, 0.5, OFFICE.counterZ + 0.355]} s={[0.05, 0.8, 0.01]} m={toon('#4a3220')} cast={false} />)}<Bx p={[cx, 0.07, OFFICE.counterZ + 0.36]} s={[7.1, 0.12, 0.02]} m={shiny('#d8c070')} cast={false} />
+    <Stanchion a={[cx - 4.6, 0, -71.4]} b={[cx - 2.0, 0, -71.4]} /><Stanchion a={[cx - 2.0, 0, -71.4]} b={[cx + 1.2, 0, -71.4]} /><Stanchion a={[cx + 1.2, 0, -71.4]} b={[cx + 4.4, 0, -71.4]} />
+    <group position={[cx - 4.9, 0, -72.8]}><Bx p={[0, 0.8, 0]} s={[0.3, 1.6, 0.7]} m={toon('#c8ccd6')} />{[0, 1, 2, 3].map((i) => <Bx key={i} p={[0.17, 0.5 + i * 0.3, 0]} s={[0.03, 0.22, 0.5]} m={toon(['#e8483a', '#3a7ad6', '#f2b234', '#2f9a5a'][i])} cast={false} />)}</group>
+    <group position={[cx + 4.9, 0, -69]}><Bx p={[0, 0.5, 0]} s={[0.4, 1.0, 0.4]} m={shiny('#e8f2f8')} /><Cy p={[0, 1.25, 0]} r={0.16} h={0.45} m={toon('#8fd4f4')} /></group>
+    {[-3, 0, 3].map((x) => <CeilingLamp key={'c' + x} p={[cx + x, 3.42, -70]} />)}<Poster p={[cx + 5.45, 1.9, -67.8]} s={[0.8, 1.1]} seed={2} ry={-Math.PI / 2} />
     <group position={[cx + 4.6, 0, -73]}><Bx p={[0, 0.7, 0]} s={[0.55, 1.4, 0.5]} m={shiny('#d3221a')} /><Bx p={[0, 1.15, 0.26]} s={[0.4, 0.3, 0.02]} m={toon('#101820')} cast={false} /><Bx p={[0.0, 0.8, 0.26]} s={[0.3, 0.08, 0.02]} m={toon('#fbf8f0')} cast={false} /></group>
     <Bench p={[cx - 3.2, 0, -67.2]} ry={Math.PI} /><Bench p={[cx + 0.2, 0, -67.2]} ry={Math.PI} />
     <Flag p={[cx - 5.0, 0, -75.3]} /><Plant p={[cx + 5.0, 0, -75.2]} s={1.5} /><Plant p={[cx + 5.0, 0, -65.2]} s={1.3} /><WallClock p={[cx + 3.4, 2.95, z0 + 0.1]} f={f} />
@@ -124,6 +135,11 @@ const MapCell: React.FC<{f: number; tilt: number; beam: number; stamp: [number, 
   const a: V3 = [cx + 3.0, 0.3, -72.4], b: V3 = [cx - 3.2, 0.3, -68.4];
   return <group>
     <Shell cx={cx} col='#16264a' />
+    <Backdrop p={[cx, 2.0, CELL.z0 + 0.05]} s={[CELL.w, 4]} /><Backdrop p={[cx - 5.45, 2.0, CELL.cz]} s={[12, 4]} ry={Math.PI / 2} /><Backdrop p={[cx + 5.45, 2.0, CELL.cz]} s={[12, 4]} ry={-Math.PI / 2} />
+    <Cloud p={[cx - 3, 3.0, -72]} s={0.9} f={f} /><Cloud p={[cx + 2, 2.7, -69]} s={1.1} f={f} /><Cloud p={[cx + 4, 3.1, -74]} s={0.8} f={f} /><Cloud p={[cx - 1, 2.9, -66]} s={1.0} f={f} />
+    <Pagoda p={[cx - 3.9, 0.02, -67.6]} s={0.9} /><Tower p={[cx - 2.6, 0.02, -67.2]} h={1.3} col='#6f86b8' /><Tower p={[cx - 2.0, 0.02, -67.8]} h={1.8} col='#8a9cc8' />
+    <Tower p={[cx + 3.8, 0.02, -73.6]} h={1.5} col='#a3b2d6' /><Tower p={[cx + 4.5, 0.02, -73.0]} h={1.1} col='#6f86b8' /><Suitcase p={[cx + 2.4, 0.02, -71.2]} col='#e8483a' ry={0.4} /><Suitcase p={[cx + 2.0, 0.02, -71.0]} col='#2a9ad6' ry={-0.3} />
+    <PlaneModel p={[cx - 0.1 + 0.8 * Math.sin(f * 0.02), 1.9, -70.4]} ry={-2.57} />
     <mesh geometry={PLN} material={mm} position={[cx, 0.012, CELL.cz]} scale={[CELL.w - 0.6, 11.4, 1]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow />
     {/* dotted flight arc (animated dots) from the far pin to Japan */}
     {Array.from({length: 22}, (_, i) => { const u = (i / 22 + f * 0.004) % 1, x = a[0] + (b[0] - a[0]) * u, z = a[2] + (b[2] - a[2]) * u; return <Sp key={i} p={[x, 0.25 + 1.5 * Math.sin(u * Math.PI), z]} r={0.07} m={dot} />; })}
@@ -139,7 +155,7 @@ const MapCell: React.FC<{f: number; tilt: number; beam: number; stamp: [number, 
     {showBoards && <group position={[cx - 2.6, 0, -71.0]}><Bx p={[0, 0.9, 0]} s={[2.0, 1.5, 0.08]} m={toon('#fbfbfb')} /><Sign p={[0, 0.9, 0.05]} s={[1.9, 1.4]} lines={['USA', 'BORN HERE', '= CITIZEN']} bg='#1d2a6e' fg='#ffffff' /><Cy p={[-0.8, 0.0, 0]} r={0.05} h={0.3} m={toon('#2a2a33')} /><Check p={[0.55, 1.35, 0.14]} ok u={stamp[0]} /></group>}
     {showBoards && <group position={[cx + 2.6, 0, -71.0]}><Bx p={[0, 0.9, 0]} s={[2.0, 1.5, 0.08]} m={toon('#fbfbfb')} /><Sign p={[0, 0.9, 0.05]} s={[1.9, 1.4]} lines={['JAPAN', 'BORN HERE', 'IS NOT ENOUGH']} bg='#b2191a' fg='#ffffff' /><Check p={[0.55, 1.35, 0.14]} ok={false} u={stamp[1]} /></group>}
     {/* family-tree light: gold beam flows from the parents' passports down to the child */}
-    {beam > 0.02 && <group><mesh geometry={BOX} material={gold} position={[cx - 0.2, 1.3 - 0.45 * beam, -70.5]} scale={[0.06, 0.9 * beam, 0.06]} />{Array.from({length: 7}, (_, i) => { const u = (i / 7 + f * 0.02) % 1; return <Sp key={i} p={[cx - 0.2 + 0.18 * Math.sin(u * 9 + i), 1.7 - 1.0 * u, -70.5 + 0.18 * Math.cos(u * 9 + i)]} r={0.035 * beam} m={dot} />; })}</group>}
+    {beam > 0.02 && <group><mesh geometry={BOX} material={gold} position={[cx - 0.2, 0.95 - 0.25 * beam, -70.8]} scale={[0.05, 0.5 * beam, 0.05]} />{Array.from({length: 7}, (_, i) => { const u = (i / 7 + f * 0.02) % 1; return <Sp key={i} p={[cx - 0.2 + 0.14 * Math.sin(u * 9 + i), 0.95 - 0.55 * u, -70.8 + 0.14 * Math.cos(u * 9 + i)]} r={0.035 * beam} m={dot} />; })}</group>}
     {lit && <><pointLight position={[cx, 3.0, -70]} intensity={24} distance={14} decay={1.3} color='#fff0d6' /><pointLight position={[cx - 3, 2.0, -68]} intensity={8} distance={7} decay={1.5} color='#ff8a8a' /><pointLight position={[cx + 3, 2.0, -72]} intensity={8} distance={7} decay={1.5} color='#8affb0' /></>}
   </group>;
 };
@@ -150,6 +166,10 @@ const StreetDetail: React.FC<{f: number}> = ({f}) => <group>
   <PowerLine x={-12.5} z={8.1} len={26} /><PowerLine x={13.5} z={8.1} len={18} />
   <Lantern p={[5.2, 2.2, NEAR_Z + 1.1]} f={f} /><Lantern p={[8.6, 2.2, NEAR_Z + 1.1]} f={f} /><Lantern p={[-8.6, 2.2, NEAR_Z + 1.1]} f={f} col='#2f9a5a' />
   <Poster p={[-3.0, 1.7, NEAR_Z + 0.04]} s={[0.55, 0.8]} seed={1} /><Poster p={[2.9, 1.7, NEAR_Z + 0.04]} s={[0.55, 0.8]} seed={2} /><Poster p={[-8.2, 1.4, NEAR_Z + 0.04]} s={[0.5, 0.7]} seed={3} />
+  <Sakura p={[-11.4, 0, 8.0]} s={1.15} /><Sakura p={[14.6, 0, 8.0]} s={1.1} /><Sakura p={[-14.8, 0, 8.0]} s={1.0} />
+  <Nobori p={[4.5, 0, NEAR_Z + 1.5]} col='#1d3a6e' text='PASS' /><Nobori p={[9.9, 0, NEAR_Z + 1.5]} col='#1d3a6e' text='PASS' /><Nobori p={[-9.9, 0, NEAR_Z + 1.5]} col='#d3221a' text='+' />
+  <Crosswalk x={-16} z0={8.9} z1={17.5} /><Bollard p={[-9.0, 0, 8.45]} /><Bollard p={[-5.0, 0, 8.45]} /><Bollard p={[-0.5, 0, 8.45]} /><Bollard p={[5.0, 0, 8.45]} /><Bollard p={[9.5, 0, 8.45]} />
+  <Mailbox p={[12.4, 0, NEAR_Z + 0.6]} /><TrafficLight p={[-14.2, 0, 8.45]} f={f} /><TrafficLight p={[16.2, 0, 8.45]} f={f} />
   <Plant p={[-4.3, 0, 7.9]} s={1.4} /><Plant p={[4.2, 0, 7.9]} s={1.4} /><Plant p={[12.6, 0, 7.9]} s={1.2} /><Plant p={[-12.6, 0, 7.9]} s={1.2} />
 </group>;
 
@@ -167,6 +187,7 @@ export const SetBefore: React.FC<P> = ({f, st, tod}) => {
     {all('baby').map((q, i) => <Baby key={i} p={[q[0], q[1], q[2]]} />)}
     {all('paper').map((q, i) => <group key={i} position={[q[0], q[1], q[2]]} rotation={[0.3, 0, 0.1]}><Bx p={[0, 0, 0]} s={[0.34, 0.46, 0.015]} m={toon('#fffdf2')} cast={false} />{[0, 1, 2, 3].map((r) => <Bx key={r} p={[0, 0.14 - r * 0.07, 0.01]} s={[0.24, 0.015, 0.004]} m={toon('#8a8a96')} cast={false} />)}{q[3] > 0.5 && <Check p={[0, 0, 0.03]} ok={false} u={1} />}</group>)}
     {all('stack').map((q, i) => <group key={i} position={[q[0], q[1], q[2]]}>{[0, 1, 2, 3, 4].map((r) => <Bx key={r} p={[0.01 * (r % 2), 0.03 + r * 0.045, 0]} s={[0.42, 0.04, 0.3]} m={toon(['#fffdf2', '#f4e8c0', '#e8f2ff'][r % 3])} cast={false} />)}</group>)}
+    {all('xmark').map((q, i) => <Check key={'x' + i} p={[q[0], q[1], q[2]]} ok={false} u={1} size={1.3} />)}
     {qm && <QMarks p={[qm[0], qm[1], qm[2]]} u={qm[3]} f={f} />}
     <pointLight position={[0, 4.5, 11]} intensity={4} distance={30} decay={1.2} color='#fff0dc' />
   </>);

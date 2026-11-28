@@ -591,13 +591,6 @@ export function headTex(who: Who, view: View): PartTex {
     if (!FACE_DYN && L.hat && view !== 'back' && FACE_SH.brim > 0) { g.save(); g.beginPath(); P(); g.clip(); g.globalCompositeOperation = 'multiply'; g.beginPath();
       g.moveTo(-rx * 1.2, -ry * 1.2); g.lineTo(rx * 1.2, -ry * 1.2); g.lineTo(rx * 1.2, -ry * FACE_SH.brim + ry * 0.06); g.quadraticCurveTo(0, -ry * FACE_SH.brim - ry * 0.05, -rx * 1.2, -ry * FACE_SH.brim + ry * 0.1); g.closePath();
       g.fillStyle = FACE_SH.col; g.fill(); g.restore(); }   // SHADE v10: hat-brim shadow across the forehead
-    { // SHEEN v2: soft light-side sheen + crisp glossy highlight on the forehead/cheek (light from the upper right) + warm cheek blush
-      g.save(); g.beginPath(); P(); g.clip();
-      let gr = g.createRadialGradient(rx * 0.38, -ry * 0.34, 0, rx * 0.38, -ry * 0.34, rx * 0.62); gr.addColorStop(0, 'rgba(255,255,255,.62)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-      g.fillStyle = gr; g.fillRect(-rx * 1.5, -ry * 1.5, rx * 3, ry * 3);
-      if (view === 'front') for (const sx of [-1, 1]) { gr = g.createRadialGradient(sx * rx * 0.55, ry * 0.3, 0, sx * rx * 0.55, ry * 0.3, rx * 0.34); gr.addColorStop(0, 'rgba(255,120,130,.34)'); gr.addColorStop(1, 'rgba(255,120,130,0)'); g.fillStyle = gr; g.fillRect(-rx * 1.5, -ry * 1.5, rx * 3, ry * 3); }
-      g.beginPath(); ell(g, rx * 0.5, -ry * 0.52, rx * 0.17, ry * 0.075); g.fillStyle = 'rgba(255,255,255,.85)'; g.fill();
-      g.restore(); }
     g.beginPath(); P(); inkS(g);
     { const sw = SHAPES[who].w, sh2 = SHAPES[who].h;   // LINE-AGENT: hair edges inside the head ball are interior lines (thin, no drop)
       inkSil = (x, y) => { const r = Math.hypot(x / (rx * sw), y / (ry * sh2)); return Math.min(L.hat ? 0.3 : 1, Math.max(0, (r - 0.9) / 0.1)); };   // v12: hair under a hat = thin even line (no black blob at the temple)
